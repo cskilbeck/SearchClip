@@ -1,6 +1,6 @@
 #include "stdafx.h"
 
-TCHAR *gTopLevelDomain[] =
+TCHAR *gTopLevelDomains[] =
 {
 	TEXT(".AC"),
 	TEXT(".AD"),

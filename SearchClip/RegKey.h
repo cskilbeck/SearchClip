@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////
 
-#include "stdafx.h"
+#pragma once
 
 //////////////////////////////////////////////////////////////////////
 
@@ -13,11 +13,8 @@ struct Value
 		kUnknown
 	};
 
-	union
-	{
-		DWORD		mDWORD;
-	};
-	wstring		mString;	// can't put this in the union
+	DWORD		mDWORD;
+	wstring		mString;	// can't put this in a union
 	eType		mType;
 
 	Value()
@@ -49,15 +46,15 @@ public:
 	//////////////////////////////////////////////////////////////////////
 
 	RegKey()
+		: mKey(NULL)
 	{
-		mKey = NULL;
 	}
 
 	//////////////////////////////////////////////////////////////////////
 
-	RegKey(HKEY parent, WCHAR const *name, DWORD accessMask = KEY_READ)
+	RegKey(HKEY parent, wstring const &name, DWORD accessMask = KEY_READ)
 	{
-		if(RegOpenKeyEx(parent, name, 0, accessMask, &mKey) != ERROR_SUCCESS)
+		if(RegOpenKeyEx(parent, name.c_str(), 0, accessMask, &mKey) != ERROR_SUCCESS)
 		{
 			mKey = NULL;
 		}
@@ -90,10 +87,10 @@ public:
 
 	//////////////////////////////////////////////////////////////////////
 
-	BOOL Create(HKEY parent, WCHAR const *name, DWORD accessMask = KEY_READ)
+	BOOL Create(HKEY parent, wstring const &name, DWORD accessMask = KEY_READ)
 	{
 		Close();
-		if(RegCreateKeyEx(parent, name, 0, NULL, 0, accessMask, NULL, &mKey, NULL) != ERROR_SUCCESS)
+		if(RegCreateKeyEx(parent, name.c_str(), 0, NULL, 0, accessMask, NULL, &mKey, NULL) != ERROR_SUCCESS)
 		{
 			mKey = NULL;
 		}
@@ -120,11 +117,18 @@ public:
 
 	//////////////////////////////////////////////////////////////////////
 
-	BOOL GetDWORDValue(WCHAR const *name, DWORD &result)
+	BOOL GetStringValue(wstring const &name, wstring &result)
+	{
+		return GetStringValue(name.c_str(), result);
+	}
+
+	//////////////////////////////////////////////////////////////////////
+
+	BOOL GetDWORDValue(wstring const &name, DWORD &result)
 	{
 		DWORD type;
 		DWORD size = sizeof(result);
-		if(RegQueryValueEx(mKey, name, NULL, &type, (LPBYTE)&result, &size) == ERROR_SUCCESS)
+		if(RegQueryValueEx(mKey, name.c_str(), NULL, &type, (LPBYTE)&result, &size) == ERROR_SUCCESS)
 		{
 			return type == REG_DWORD;
 		}
@@ -133,23 +137,23 @@ public:
 
 	//////////////////////////////////////////////////////////////////////
 
-	BOOL DeleteValue(WCHAR const *name)
+	BOOL DeleteValue(wstring const &name)
 	{
-		return RegDeleteValue(mKey, name) == ERROR_SUCCESS;
+		return RegDeleteValue(mKey, name.c_str()) == ERROR_SUCCESS;
 	}
 
 	//////////////////////////////////////////////////////////////////////
 
-	BOOL SetStringValue(WCHAR const *name, WCHAR const *value)
+	BOOL SetStringValue(wstring const &name, wstring const &value)
 	{
-		return RegSetValueEx(mKey, name, 0, REG_SZ, (LPBYTE)value, (wcslen(value) + 1) * sizeof(WCHAR)) == ERROR_SUCCESS;
+		return RegSetValueEx(mKey, name.c_str(), 0, REG_SZ, (LPBYTE)value.c_str(), (value.size() + 1) * sizeof(WCHAR)) == ERROR_SUCCESS;
 	}
 
 	//////////////////////////////////////////////////////////////////////
 
-	BOOL SetDWORDValue(WCHAR const *name, DWORD value)
+	BOOL SetDWORDValue(wstring const &name, DWORD value)
 	{
-		return RegSetValueEx(mKey, name, 0, REG_DWORD, (LPBYTE)&value, sizeof(DWORD)) == ERROR_SUCCESS;
+		return RegSetValueEx(mKey, name.c_str(), 0, REG_DWORD, (LPBYTE)&value, sizeof(DWORD)) == ERROR_SUCCESS;
 	}
 
 	//////////////////////////////////////////////////////////////////////
@@ -171,7 +175,7 @@ public:
 
 	//////////////////////////////////////////////////////////////////////
 
-	int EnumValues(vector <Value> &values)
+	int EnumValues(vector<Value> &values)
 	{
 		DWORD index = 0;
 		WCHAR name[256];
@@ -191,10 +195,8 @@ public:
 				values.push_back(Value(*(DWORD *)valueBuffer));
 				break;
 
-			// add the rest here
-
+			// other types not supported, ignored
 			default:
-				values.push_back(Value());	// Unknown type
 				break;
 			}
 			valueBufferLength = ARRAYSIZE(valueBuffer);

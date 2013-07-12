@@ -3,7 +3,6 @@
 #include "stdafx.h"
 #include "Browser.h"
 #include "RegKey.h"
-#include <commdlg.h>
 
 //////////////////////////////////////////////////////////////////////
 
@@ -11,6 +10,57 @@ vector<Browser>		Browser::sAllBrowsers;
 Browser *			Browser::sDefaultBrowser = NULL;
 Browser *			Browser::sCustomBrowser = NULL;
 int					Browser::sCurrentBrowser = -1;
+
+//////////////////////////////////////////////////////////////////////
+
+Browser::Browser(wstring const &name, wstring const &exe, wstring const &commandLine)
+	: mName(name)
+	, mExecutableFilename(exe)
+	, mCommandLine(commandLine)
+	, mIsDefault(false)
+	, mIsCustom(false)
+	, mIsCurrent(false)
+{
+}
+
+//////////////////////////////////////////////////////////////////////
+
+Browser::~Browser()
+{
+}
+
+//////////////////////////////////////////////////////////////////////
+
+wstring const &Browser::Name() const
+{
+	return mName;
+}
+
+//////////////////////////////////////////////////////////////////////
+
+wstring const &Browser::ExecutableFilename() const
+{
+	return mExecutableFilename;
+}
+
+//////////////////////////////////////////////////////////////////////
+
+wstring const &Browser::CommandLine() const
+{
+	return mCommandLine;
+}
+
+void Browser::SetCommandLine(wstring const &commandLine)
+{
+	mCommandLine = commandLine;
+}
+
+//////////////////////////////////////////////////////////////////////
+
+bool Browser::IsCustom() const
+{
+	return mIsCustom;
+}
 
 //////////////////////////////////////////////////////////////////////
 
@@ -23,6 +73,8 @@ int Browser::GetCurrentIndex()
 
 Browser &Browser::GetCurrent()
 {
+	assert(!sAllBrowsers.empty());
+
 	if(sCurrentBrowser != -1)
 	{
 		return sAllBrowsers[sCurrentBrowser];
@@ -39,13 +91,19 @@ int Browser::Find(wstring const &name)
 {
 	for(size_t i=0; i<sAllBrowsers.size(); ++i)
 	{
-		Browser &b = Browser::sAllBrowsers[i];
-		if(name.compare(b.Name()) == 0)
+		if(Browser::sAllBrowsers[i].Name().compare(name) == 0)
 		{
 			return i;
 		}
 	}
 	return -1;
+}
+
+//////////////////////////////////////////////////////////////////////
+
+Browser &Browser::Get(int id)
+{
+	return sAllBrowsers[id];
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -68,12 +126,10 @@ void Browser::SetCurrent(int index)
 
 void Browser::ScanRegistryForBrowsers()
 {
-	TRACE(TEXT("Scanning browsers:\n"));
 	sAllBrowsers.clear();
 	RegKey r(HKEY_LOCAL_MACHINE, TEXT("SOFTWARE\\Clients\\StartMenuInternet"));
 	wstring defaultBrowser;
 	r.GetStringValue(NULL, defaultBrowser);
-	TRACE(TEXT("Default is %s\n"), defaultBrowser.c_str());
 
 	vector<wstring> browserNames;
 	r.EnumKeys(browserNames);
@@ -84,7 +140,6 @@ void Browser::ScanRegistryForBrowsers()
 		wstring name;
 		if(b.GetStringValue(NULL, name))
 		{
-			TRACE(TEXT("%d: %s"), i, name.c_str());
 			RegKey cmd(b, TEXT("shell\\open\\command"));
 			wstring command;
 			if(cmd.GetStringValue(NULL, command))
@@ -93,26 +148,32 @@ void Browser::ScanRegistryForBrowsers()
 				if(browserNames[i].compare(defaultBrowser) == 0)
 				{
 					defaultID = (int)sAllBrowsers.size() - 1;
-					TRACE(TEXT(" (is default %d)"), defaultID);
 					sAllBrowsers.back().mIsDefault = true;
 					sDefaultBrowser = &sAllBrowsers.back();
 				}
 			}
-			TRACE(TEXT("\n"));
 		}
 	}
 	Browser custom(TEXT("Custom"), TEXT(""), TEXT(""));
 	custom.mIsCustom = true;
 	sAllBrowsers.push_back(custom);
 	sCustomBrowser = &sAllBrowsers.back();
+	
+	assert(defaultID != -1);
+	if(defaultID == -1)
+	{
+		defaultID = 0;
+	}
+
 	Browser::SetCurrent(defaultID);
-	TRACE(TEXT("Current browser is %s\n"), Browser::GetCurrent().mName.c_str());
 }
 
 //////////////////////////////////////////////////////////////////////
 
 void Browser::ChooseCustomBrowserExecutable(HWND parentWindow)
 {
+	assert(sCustomBrowser != NULL);
+
 	OPENFILENAME ofn = { 0 };
 	WCHAR filename[MAX_PATH] = { 0 };
 

@@ -4,4 +4,5 @@
 
 //////////////////////////////////////////////////////////////////////
 
-#include "resource.h"
+#define WMU_POP_OPTIONS_DIALOG	(WM_USER)
+#define WMU_LAUNCH_BROWSER		(WM_USER+1)
