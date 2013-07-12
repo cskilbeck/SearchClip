@@ -203,25 +203,19 @@ BOOL LoadOptionsFromRegistry()
 	if(options.GetStringValue(L"Browser", browserName))
 	{
 		TRACE(L"Browser: %s\n", browserName.c_str());
-		int currentBrowserIndex = -1;
-		for(size_t i=0; i<Browser::sAllBrowsers.size(); ++i)
-		{
-			Browser &b = Browser::sAllBrowsers[i];
-			if(browserName.compare(b.mName) == 0)
-			{
-				currentBrowserIndex = (int)i;
-			}
-			else
-			{
-				b.mIsCurrent = false;
-			}
-		}
+		int currentBrowserIndex = Browser::Find(browserName);
 		if(currentBrowserIndex != -1)
 		{
 			Browser::SetCurrent(currentBrowserIndex);
-			options.GetStringValue(L"BrowserOptions", Browser::GetCurrent().mCommandLine);
-			TRACE(L"(found it, options: [%s])\n", Browser::GetCurrent().mCommandLine.c_str());
+			wstring commandLine;
+			options.GetStringValue(L"BrowserOptions", commandLine);
+			Browser::GetCurrent().SetCommandLine(commandLine);
+			TRACE(L"(found it, options: [%s])\n", Browser::GetCurrent().CommandLine().c_str());
 		}
+	}
+	else
+	{
+		Browser::SetCurrent(0);
 	}
 
 	wstring searchName;
@@ -281,7 +275,8 @@ void SaveOptions(HWND dlg)
 	TRACE(L"Browser index = %d\n", browserIndex);
 	Browser::SetCurrent(browserIndex);
 	GetDlgItemText(dlg, IDC_EDIT_BROWSERPARAMETERS, buffer, ARRAYSIZE(buffer));
-	Browser::GetCurrent().mCommandLine = buffer;
+
+	Browser::GetCurrent().SetCommandLine(buffer);
 
 	RegKey r(HKEY_CURRENT_USER, L"Software\\Microsoft\\Windows\\CurrentVersion\\Run", KEY_READ|KEY_SET_VALUE);
 	if(IsDlgButtonChecked(dlg, IDC_CHECK_RUN_AT_STARTUP))
@@ -299,8 +294,8 @@ void SaveOptions(HWND dlg)
 	RegKey options;
 	options.Create(HKEY_CURRENT_USER, OptionsKeyName.c_str(), KEY_READ|KEY_CREATE_SUB_KEY|KEY_SET_VALUE);
 	options.SetDWORDValue(L"OptionsSet", 1);
-	options.SetStringValue(L"Browser", Browser::GetCurrent().mName.c_str());
-	options.SetStringValue(L"BrowserOptions", Browser::GetCurrent().mCommandLine.c_str());
+	options.SetStringValue(L"Browser", Browser::GetCurrent().Name().c_str());
+	options.SetStringValue(L"BrowserOptions", Browser::GetCurrent().CommandLine().c_str());
 	options.SetStringValue(L"SearchEngine", SearchEngine::GetCurrent().mName.c_str());
 	options.SetStringValue(L"SearchFormat", SearchEngine::GetCurrent().mFormatString.c_str());
 }
@@ -309,7 +304,7 @@ void UpdateOptionsDialogText(HWND dlg)
 {
 	HWND searchEdit = GetDlgItem(dlg, IDC_EDIT_SEARCHENGINEFORMAT);
 	SetDlgItemText(dlg, IDC_EDIT_SEARCHENGINEFORMAT, SearchEngine::GetCurrent().mFormatString.c_str());
-	SetDlgItemText(dlg, IDC_STATIC_BROWSERPATH, Browser::GetCurrent().mExecutableFilename.c_str());
+	SetDlgItemText(dlg, IDC_STATIC_BROWSERPATH, Browser::GetCurrent().ExecutableFilename().c_str());
 	Edit_SetReadOnly(searchEdit, !SearchEngine::GetCurrent().mIsCustom);
 }
 
@@ -327,10 +322,9 @@ LRESULT CALLBACK DialogProc(HWND hWndDialog, UINT uMsg, WPARAM wParam, LPARAM lP
 		{
 			TRACE(L"Init options dialog\n");
 			HWND browserCombo = GetDlgItem(hWndDialog, IDC_COMBO_BROWSERCHOICE);
-			for(size_t i=0; i<Browser::sAllBrowsers.size(); ++i)
+			for(auto b : Browser::AllBrowsers())
 			{
-				Browser &b = Browser::sAllBrowsers[i];
-				int id = ComboBox_AddString(browserCombo, b.mName.c_str());
+				int id = ComboBox_AddString(browserCombo, b.Name().c_str());
 				ComboBox_SetItemData(browserCombo, id, &b);
 			}
 			ComboBox_SetCurSel(browserCombo, Browser::GetCurrentIndex());
@@ -360,7 +354,7 @@ LRESULT CALLBACK DialogProc(HWND hWndDialog, UINT uMsg, WPARAM wParam, LPARAM lP
 				HWND browserCombo = GetDlgItem(hWndDialog, IDC_COMBO_BROWSERCHOICE);
 				int id = ComboBox_GetCurSel(browserCombo);
 				Browser *b = (Browser *)ComboBox_GetItemData(browserCombo, id);
-				if(b->mIsCustom)
+				if(b->IsCustom())
 				{
 					Browser::ChooseCustomBrowserExecutable(hWndDialog);
 				}
@@ -577,7 +571,7 @@ void LaunchBrowser()
 			startupInfo.dwFlags = STARTF_USESHOWWINDOW;
 
 			WCHAR commandLine[16384];
-			wcscpy_s(commandLine, (Browser::GetCurrent().mExecutableFilename + L" " + Browser::GetCurrent().mCommandLine + L" " + clip).c_str());
+			wcscpy_s(commandLine, (Browser::GetCurrent().ExecutableFilename() + L" " + Browser::GetCurrent().CommandLine() + L" " + clip).c_str());
 
 			CreateProcess(NULL,
 				commandLine,
