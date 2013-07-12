@@ -1,6 +1,7 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
+#include "resource.h"
 #include "SearchEngine.h"
 
 //////////////////////////////////////////////////////////////////////
@@ -10,7 +11,7 @@ int SearchEngine::sCurrentSearchEngine = 0;
 
 //////////////////////////////////////////////////////////////////////
 
-SearchEngine::SearchEngine(WCHAR const *name, WCHAR const *formatString, bool isCustom)
+SearchEngine::SearchEngine(wstring const &name, wstring const &formatString, bool isCustom)
 	: mName(name)
 	, mFormatString(formatString)
 	, mIsCustom(isCustom)
@@ -21,8 +22,8 @@ SearchEngine::SearchEngine(WCHAR const *name, WCHAR const *formatString, bool is
 
 void SearchEngine::InitSearchEngines()
 {
-	sAllSearchEngines.push_back(SearchEngine(TEXT("Bing"), TEXT("http://www.bing.com/search?q=${CLIP}&src=IE-SearchBox&FORM=IE10S"), false));
-	sAllSearchEngines.push_back(SearchEngine(TEXT("Google"), TEXT("HTTPS://www.google.com/webhp?ie=UTF8#output=search&q=${CLIP}"), false));
+	sAllSearchEngines.push_back(SearchEngine(GString(IDS_SEARCHNAME_BING), GString(IDS_SEARCHFORMAT_BING), false));
+	sAllSearchEngines.push_back(SearchEngine(GString(IDS_SEARCHNAME_GOOGLE), GString(IDS_SEARCHFORMAT_GOOGLE), false));
 	sAllSearchEngines.push_back(SearchEngine(TEXT("Custom"), TEXT(""), true));
 	SetCurrent(0);
 }

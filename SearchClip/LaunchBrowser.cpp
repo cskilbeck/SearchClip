@@ -119,7 +119,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 
 BOOL LoadOptionsFromRegistry()
 {
-	RegKey options(HKEY_CURRENT_USER, OptionsKeyName.c_str(), KEY_READ|KEY_CREATE_SUB_KEY|KEY_SET_VALUE);
+	RegKey options(HKEY_CURRENT_USER, OptionsKeyName, KEY_READ|KEY_CREATE_SUB_KEY|KEY_SET_VALUE);
 
 	DWORD optionsSet;
 	if(!(options.GetDWORDValue(GString(IDS_KEYNAME_OPTIONSSET), optionsSet) && optionsSet == 1))
@@ -185,21 +185,21 @@ void SaveOptionsToRegistry(HWND dlg)
 	RegKey r(HKEY_CURRENT_USER, TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\Run"), KEY_READ|KEY_SET_VALUE);
 	if(IsDlgButtonChecked(dlg, IDC_CHECK_RUN_AT_STARTUP))
 	{
-		r.SetStringValue(szTitle.c_str(), GetExecutableFilename().c_str());
+		r.SetStringValue(szTitle, GetExecutableFilename());
 	}
 	else
 	{
-		r.DeleteValue(szTitle.c_str());
+		r.DeleteValue(szTitle);
 	}
 
 	RegKey options;
-	options.Create(HKEY_CURRENT_USER, OptionsKeyName.c_str(), KEY_READ|KEY_CREATE_SUB_KEY|KEY_SET_VALUE);
+	options.Create(HKEY_CURRENT_USER, OptionsKeyName, KEY_READ|KEY_CREATE_SUB_KEY|KEY_SET_VALUE);
 	options.SetDWORDValue(GString(IDS_KEYNAME_OPTIONSSET), 1);
-	options.SetStringValue(GString(IDS_KEYNAME_BROWSER), Browser::GetCurrent().Name().c_str());
-	options.SetStringValue(GString(IDS_KEYNAME_BROWSEROPTIONS), Browser::GetCurrent().CommandLine().c_str());
-	options.SetStringValue(GString(IDS_KEYNAME_BROWSER_EXECUTABLE), Browser::GetCurrent().ExecutableFilename().c_str());
-	options.SetStringValue(GString(IDS_KEYNAME_SEARCHENGINE), SearchEngine::GetCurrent().Name().c_str());
-	options.SetStringValue(GString(IDS_KEYNAME_SEARCHFORMAT), SearchEngine::GetCurrent().FormatString().c_str());
+	options.SetStringValue(GString(IDS_KEYNAME_BROWSER), Browser::GetCurrent().Name());
+	options.SetStringValue(GString(IDS_KEYNAME_BROWSEROPTIONS), Browser::GetCurrent().CommandLine());
+	options.SetStringValue(GString(IDS_KEYNAME_BROWSER_EXECUTABLE), Browser::GetCurrent().ExecutableFilename());
+	options.SetStringValue(GString(IDS_KEYNAME_SEARCHENGINE), SearchEngine::GetCurrent().Name());
+	options.SetStringValue(GString(IDS_KEYNAME_SEARCHFORMAT), SearchEngine::GetCurrent().FormatString());
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -242,7 +242,7 @@ void InitOptionsDialog(HWND hWndDialog)
 
 	RegKey r(HKEY_CURRENT_USER, TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\Run"));
 	wstring appPath;
-	CheckDlgButton(hWndDialog, IDC_CHECK_RUN_AT_STARTUP, r.GetStringValue(szTitle.c_str(), appPath) ? BST_CHECKED : BST_UNCHECKED);
+	CheckDlgButton(hWndDialog, IDC_CHECK_RUN_AT_STARTUP, r.GetStringValue(szTitle, appPath) ? BST_CHECKED : BST_UNCHECKED);
 }
 
 //////////////////////////////////////////////////////////////////////

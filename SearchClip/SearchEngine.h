@@ -8,7 +8,7 @@ struct SearchEngine
 {
 	//////////////////////////////////////////////////////////////////////
 
-	SearchEngine(WCHAR const *name, WCHAR const *formatString, bool isCustom);
+	SearchEngine(wstring const &name, wstring const &formatString, bool isCustom);
 
 	wstring const &Name() const;
 	wstring const &FormatString() const;
