@@ -223,6 +223,7 @@ void UpdateOptionsDialogText(HWND dlg)
 
 void InitOptionsDialog(HWND hWndDialog)
 {
+	SetWindowText(hWndDialog, (GString(IDS_APP_TITLE) + TEXT(" options")).c_str());
 	HWND browserCombo = GetDlgItem(hWndDialog, IDC_COMBO_BROWSERCHOICE);
 	for(auto b : Browser::AllBrowsers())
 	{
