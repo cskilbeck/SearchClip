@@ -47,6 +47,14 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 	szWindowClass = GString(IDC_LAUNCHBROWSER);
 	OptionsKeyName = Format(TEXT("Software\\%s"), szTitle.c_str());
 	
+   // if it's running already, pop the options dialog
+   HWND existingWindow = FindWindow(szWindowClass.c_str(), szTitle.c_str());
+   if(existingWindow != NULL)
+   {
+	   SendNotifyMessage(existingWindow, WM_COMMAND, ID_FILE_OPTIONS, 0);
+	   return FALSE;
+   }
+
 	RegisterWindowClass(hInstance);
 
 	if (!InitInstance (hInstance, nCmdShow))
@@ -322,6 +330,7 @@ LRESULT CALLBACK OptionsDialogProc(HWND hWndDialog, UINT uMsg, WPARAM wParam, LP
 	{
 	case WM_INITDIALOG:
 		InitOptionsDialog(hWndDialog);
+		BringWindowToTop(hWndDialog);
 		break;
 
 	case WM_COMMAND:
