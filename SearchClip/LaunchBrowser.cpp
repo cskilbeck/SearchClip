@@ -295,6 +295,8 @@ void LaunchBrowser()
 	wstring clip;
 	if(GetClipboardAsString(clip))
 	{
+		clip = trim(clip);
+
 		if(!IsURL(clip))
 		{
 			clip = Replace(SearchEngine::GetCurrent().FormatString(), TEXT("${CLIP}"), clip);

@@ -1,6 +1,10 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
+#include <algorithm> 
+#include <functional> 
+#include <cctype>
+#include <locale>
 
 //////////////////////////////////////////////////////////////////////
 
@@ -66,6 +70,34 @@ wstring UpperCase(wstring const &str)
 	wstring upr(str);
 	std::transform(upr.begin(), upr.end(), upr.begin(), ::toupper);
 	return upr;
+}
+
+//////////////////////////////////////////////////////////////////////
+// trim from start
+
+wstring ltrim(wstring const &str)
+{
+	wstring s(str);
+	s.erase(s.begin(), std::find_if(s.begin(), s.end(), std::not1(std::ptr_fun<int, int>(std::isspace))));
+	return s;
+}
+
+//////////////////////////////////////////////////////////////////////
+// trim from end
+
+wstring rtrim(wstring const &str)
+{
+	wstring s(str);
+	s.erase(std::find_if(s.rbegin(), s.rend(), std::not1(std::ptr_fun<int, int>(std::isspace))).base(), s.end());
+	return s;
+}
+
+//////////////////////////////////////////////////////////////////////
+// trim from both ends
+
+wstring trim(wstring const &str)
+{
+	return ltrim(rtrim(str));
 }
 
 //////////////////////////////////////////////////////////////////////
