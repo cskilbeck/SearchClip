@@ -218,6 +218,7 @@ void UpdateOptionsDialogText(HWND dlg)
 	HWND searchEdit = GetDlgItem(dlg, IDC_EDIT_SEARCHENGINEFORMAT);
 	SetDlgItemText(dlg, IDC_EDIT_SEARCHENGINEFORMAT, SearchEngine::GetCurrent().FormatString().c_str());
 	SetDlgItemText(dlg, IDC_STATIC_BROWSERPATH, Browser::GetCurrent().ExecutableFilename().c_str());
+	SetDlgItemText(dlg, IDC_EDIT_BROWSERPARAMETERS, Browser::GetCurrent().CommandLine().c_str());
 	Edit_SetReadOnly(searchEdit, !SearchEngine::GetCurrent().IsCustom());
 }
 
