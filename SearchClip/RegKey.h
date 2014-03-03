@@ -201,6 +201,7 @@ public:
 			}
 			valueBufferLength = ARRAYSIZE(valueBuffer);
 			nameLength = ARRAYSIZE(name);
+			++index
 		}
 		return index;
 	}
