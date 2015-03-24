@@ -11,7 +11,6 @@
 #define WIN32_LEAN_AND_MEAN
 #define ISOLATION_AWARE_ENABLED 1
 
-#include <varargs.h>
 #include <windows.h>
 #include <windowsx.h>
 #include <shellapi.h>
