@@ -228,14 +228,14 @@ void InitOptionsDialog(HWND hWndDialog)
 {
 	SetWindowText(hWndDialog, (GString(IDS_APP_TITLE) + TEXT(" options")).c_str());
 	HWND browserCombo = GetDlgItem(hWndDialog, IDC_COMBO_BROWSERCHOICE);
-	for(auto b : Browser::AllBrowsers())
+	for(auto const &b : Browser::AllBrowsers())
 	{
 		ComboBox_AddString(browserCombo, b.Name().c_str());
 	}
 	ComboBox_SetCurSel(browserCombo, Browser::GetCurrentIndex());
 
 	HWND searchCombo = GetDlgItem(hWndDialog, IDC_COMBO_SEARCHENGINE);
-	for(auto s : SearchEngine::All())
+	for(auto const &s : SearchEngine::All())
 	{
 		ComboBox_AddString(searchCombo, s.Name().c_str());
 	}
