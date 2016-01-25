@@ -31,7 +31,8 @@ wstring Format(WCHAR const *fmt, ...)
 wstring Format(wstring const &str, ...)
 {
 	va_list v;
-	va_start(v, str);
+	wstring t(str);
+	va_start(v, t);
 	WCHAR buffer[8192];
 	_vsnwprintf_s(buffer, ARRAYSIZE(buffer) - 1, str.c_str(), v);
 	return buffer;
