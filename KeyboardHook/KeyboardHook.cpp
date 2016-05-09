@@ -48,10 +48,32 @@ HOOKDLL_API LRESULT CALLBACK fnMouseHook(int nCode, WPARAM wParam, LPARAM lParam
 		HWND w = WindowFromPoint(msg->pt);
 		if(w != NULL)
 		{
+			bool closeIt = false;
 			DWORD hittest = SendMessage(w, WM_NCHITTEST, 0, MAKELPARAM(msg->pt.x, msg->pt.y));
 			if(hittest == HTCAPTION)
 			{
+				closeIt = true;
+			}
+			else if (hittest == HTTRANSPARENT)	// special case for IE, which can't detect WM_NCHITTEST (returns HTTRANSPARENT)
+			{
+				TCHAR exeName[MAX_PATH];
+				DWORD exeNameSize(ARRAYSIZE(exeName));
+				DWORD processID;
+				DWORD threadID = GetWindowThreadProcessId(w, &processID);
+				HANDLE hProcess = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, processID);
+				QueryFullProcessImageName(hProcess, 0, exeName, &exeNameSize);
+				CloseHandle(hProcess);
+				if(_tcsstr(exeName, TEXT("iexplore.exe")))
+				{
+					closeIt = true;
+				}
+			}
+			if(closeIt)
+			{
+				// Most things close with these 3, in this order (WM_CLOSE last, else Office 2016 apps go screwy)
 				PostMessage(w, WM_SYSKEYDOWN, VK_F4, 1 << 29);
+				PostMessage(w, WM_SYSCOMMAND, SC_CLOSE, -1);
+				PostMessage(w, WM_CLOSE, 0, 0);
 			}
 		}
 	}

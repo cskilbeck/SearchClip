@@ -12,6 +12,7 @@
 #define ISOLATION_AWARE_ENABLED 1
 
 #include <windows.h>
+#include <winuser.h>
 #include <windowsx.h>
 #include <shellapi.h>
 #include <CommCtrl.h>
