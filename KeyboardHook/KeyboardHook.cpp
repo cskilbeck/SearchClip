@@ -8,6 +8,7 @@
 
 //////////////////////////////////////////////////////////////////////
 
+HOOKDLL_API DWORD bMiddleClickClose;
 HOOKDLL_API HHOOK hKeyboardHook = 0;
 HOOKDLL_API HHOOK hMouseHook = 0;
 HOOKDLL_API HWND hMainWindow=0;
@@ -40,26 +41,45 @@ HOOKDLL_API LRESULT CALLBACK fnKeyboardHook(int nCode, WPARAM wParam, LPARAM lPa
 
 //////////////////////////////////////////////////////////////////////
 
+HWND window;
+
+BOOL CALLBACK EnumChildProc(HWND handle, LPARAM param)
+{
+	DWORD processID;
+	GetWindowThreadProcessId(handle, &processID);
+	if((DWORD)param == processID)
+	{
+		if(IsWindowVisible(handle) && IsWindowEnabled(handle) && handle != GetDesktopWindow())
+		{
+			window = handle;
+		}
+	}
+	return TRUE;
+}
+
+//////////////////////////////////////////////////////////////////////
+
 HOOKDLL_API LRESULT CALLBACK fnMouseHook(int nCode, WPARAM wParam, LPARAM lParam)
 {
-	if(nCode == HC_ACTION && wParam == WM_MBUTTONDOWN)
+	if(bMiddleClickClose && nCode == HC_ACTION && wParam == WM_MBUTTONDOWN)
 	{
 		MSLLHOOKSTRUCT *msg = (MSLLHOOKSTRUCT *)lParam;
 		HWND w = WindowFromPoint(msg->pt);
 		if(w != NULL)
 		{
+			DWORD processID;
 			bool closeIt = false;
 			DWORD hittest = SendMessage(w, WM_NCHITTEST, 0, MAKELPARAM(msg->pt.x, msg->pt.y));
 			if(hittest == HTCAPTION)
 			{
+				GetWindowThreadProcessId(w, &processID);
 				closeIt = true;
 			}
 			else if (hittest == HTTRANSPARENT)	// special case for IE, which can't detect WM_NCHITTEST (returns HTTRANSPARENT)
 			{
 				TCHAR exeName[MAX_PATH];
 				DWORD exeNameSize(ARRAYSIZE(exeName));
-				DWORD processID;
-				DWORD threadID = GetWindowThreadProcessId(w, &processID);
+				GetWindowThreadProcessId(w, &processID);
 				HANDLE hProcess = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, processID);
 				QueryFullProcessImageName(hProcess, 0, exeName, &exeNameSize);
 				CloseHandle(hProcess);
@@ -70,10 +90,13 @@ HOOKDLL_API LRESULT CALLBACK fnMouseHook(int nCode, WPARAM wParam, LPARAM lParam
 			}
 			if(closeIt)
 			{
-				// Most things close with these 3, in this order (WM_CLOSE last, else Office 2016 apps go screwy)
-				PostMessage(w, WM_SYSKEYDOWN, VK_F4, 1 << 29);
-				PostMessage(w, WM_SYSCOMMAND, SC_CLOSE, -1);
-				PostMessage(w, WM_CLOSE, 0, 0);
+				window = NULL;
+				EnumChildWindows(NULL, EnumChildProc, (LPARAM)processID);
+				if(window != NULL)
+				{
+					PostMessage(window, WM_SYSCOMMAND, SC_CLOSE, -1);
+					TRACE(TEXT("Closing %08x (PROCESS %08x)\n"), window, processID);
+				}
 			}
 		}
 	}

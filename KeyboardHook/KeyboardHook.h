@@ -8,6 +8,7 @@
 
 //////////////////////////////////////////////////////////////////////
 
+extern HOOKDLL_API DWORD bMiddleClickClose;
 extern HOOKDLL_API HHOOK hKeyboardHook;
 extern HOOKDLL_API HHOOK hMouseHook;
 extern HOOKDLL_API HWND hMainWindow;
