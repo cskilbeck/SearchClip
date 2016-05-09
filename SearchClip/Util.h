@@ -13,7 +13,6 @@ wstring trim(wstring const &str);
 wstring ltrim(wstring const &str);
 wstring	GetExecutableFilename();
 wstring	UpperCase(wstring const &str);
-bool	IsURL(wstring const &str);
 bool	GetClipboardAsString(wstring &str);
 wstring	URLSanitize(wstring const &str);
 

@@ -103,68 +103,6 @@ wstring trim(wstring const &str)
 
 //////////////////////////////////////////////////////////////////////
 
-bool IsURL(wstring const &str)
-{
-	// if it has any spaces in it, it can't be a url (can it?)
-	if(str.find(L" ", 0) != wstring::npos)
-	{
-		return false;
-	}
-
-	wstring upr(UpperCase(str));
-
-	// if it begins with HTTP:// or HTTPS:// it's probably a URL
-	if(upr.compare(0, 7, L"HTTP://") == 0 || upr.compare(0, 8, L"HTTPS://") == 0)
-	{
-		return true;
-	}
-
-	// Find everything up to the first / or ?
-	size_t firstSlash = upr.find(L"/");
-	if(firstSlash == wstring::npos)
-	{
-		firstSlash = upr.size();
-	}
-	size_t firstQ = upr.find(L"?");
-	if(firstQ == wstring::npos)
-	{
-		firstQ = upr.size();
-	}
-	wstring upto = upr.substr(0, min(firstSlash, firstQ));
-
-	size_t lastDot = upto.rfind(L".");
-	if(lastDot == wstring::npos)
-	{
-		return false;
-	}
-
-	// TODO (charlie): the bit before that last dot must be 3 or more characters long to be a domain name
-
-	WCHAR **tld = gTopLevelDomains;
-	while(*tld != nullptr)
-	{
-		// find the tld in the string from the last dot position
-		size_t f = upto.find(*tld, lastDot);
-		if(f != wstring::npos)
-		{
-			// m.ac.com/!
-
-			// check if the character following the match is at the end of the string or followed by a / or ?
-			size_t l = wcslen(*tld);
-			size_t us = upr.size();
-			size_t ender = f + l;
-			if(ender >= us || upr[ender] == L'/' || upr[ender] == L'?')
-			{
-				return true;
-			}
-		}
-		++tld;
-	}
-	return false;
-}
-
-//////////////////////////////////////////////////////////////////////
-
 bool GetClipboardAsString(wstring &str)
 {
 	bool gotIt = false;

@@ -4,12 +4,14 @@
 #include "KeyboardHook.h"
 #include "Timer.h"
 #include "Common.h"
+#include "Util.h"
 
 //////////////////////////////////////////////////////////////////////
 
-KEYBOARDHOOK_API HHOOK hKeyboardHook=0;
-KEYBOARDHOOK_API HWND hMainWindow=0;
-KEYBOARDHOOK_API double MouseDoubleClickTime;
+HOOKDLL_API HHOOK hKeyboardHook = 0;
+HOOKDLL_API HHOOK hMouseHook = 0;
+HOOKDLL_API HWND hMainWindow=0;
+HOOKDLL_API double MouseDoubleClickTime;
 
 //////////////////////////////////////////////////////////////////////
 
@@ -17,7 +19,7 @@ Timer timer;
 
 //////////////////////////////////////////////////////////////////////
 
-KEYBOARDHOOK_API LRESULT CALLBACK fnKeyboardHook(int nCode, WPARAM wParam, LPARAM lParam)
+HOOKDLL_API LRESULT CALLBACK fnKeyboardHook(int nCode, WPARAM wParam, LPARAM lParam)
 {
 	if (	nCode == HC_ACTION
 		&&	wParam == WM_KEYDOWN
@@ -36,3 +38,22 @@ KEYBOARDHOOK_API LRESULT CALLBACK fnKeyboardHook(int nCode, WPARAM wParam, LPARA
 	return CallNextHookEx(hKeyboardHook, nCode, wParam, lParam);
 }
 
+//////////////////////////////////////////////////////////////////////
+
+HOOKDLL_API LRESULT CALLBACK fnMouseHook(int nCode, WPARAM wParam, LPARAM lParam)
+{
+	if(nCode == HC_ACTION && wParam == WM_MBUTTONDOWN)
+	{
+		MSLLHOOKSTRUCT *msg = (MSLLHOOKSTRUCT *)lParam;
+		HWND w = WindowFromPoint(msg->pt);
+		if(w != NULL)
+		{
+			DWORD hittest = SendMessage(w, WM_NCHITTEST, 0, MAKELPARAM(msg->pt.x, msg->pt.y));
+			if(hittest == HTCAPTION)
+			{
+				PostMessage(w, WM_SYSKEYDOWN, VK_F4, 1 << 29);
+			}
+		}
+	}
+	return CallNextHookEx(hMouseHook, nCode, wParam, lParam);
+}
