@@ -20,3 +20,4 @@ wstring	URLSanitize(wstring const &str);
 
 #define TRACE(X, ...) OutputDebugString(Format((X), ##__VA_ARGS__).c_str())
 
+#include "..\\Util\\log.h"

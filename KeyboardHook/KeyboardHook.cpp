@@ -17,24 +17,27 @@ HOOKDLL_API double MouseDoubleClickTime;
 //////////////////////////////////////////////////////////////////////
 
 Timer timer;
+int lastKey;
 
 //////////////////////////////////////////////////////////////////////
 
 HOOKDLL_API LRESULT CALLBACK fnKeyboardHook(int nCode, WPARAM wParam, LPARAM lParam)
 {
+	int key = ((KBDLLHOOKSTRUCT *)lParam)->vkCode;
 	if (	nCode == HC_ACTION
 		&&	wParam == WM_KEYDOWN
-		&&	((KBDLLHOOKSTRUCT *)lParam)->vkCode == 'C'	// TODO: Check if this should be got from somewhere in case it's not 'C'
+		&&	(key == 'C' || key == 'G')	// TODO: Check if this should be got from somewhere in case it's not 'C'
 		&&	GetAsyncKeyState(VK_LCONTROL) < 0
 		)
 	{
 		double elapsed = timer.GetElapsed();
 		timer.Reset();
-		if(elapsed < MouseDoubleClickTime)
+		if(elapsed < MouseDoubleClickTime && key == lastKey)
 		{
-			PostMessage(hMainWindow, WMU_LAUNCH_BROWSER, 0, 0);
+			PostMessage(hMainWindow, WMU_LAUNCH_BROWSER, key, 0);
 			return 1;
 		}
+		lastKey = key;
 	}
 	return CallNextHookEx(hKeyboardHook, nCode, wParam, lParam);
 }

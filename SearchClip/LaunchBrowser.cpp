@@ -300,16 +300,23 @@ void ShowContextMenu(HWND hWnd)
 
 //////////////////////////////////////////////////////////////////////
 
-void LaunchBrowser()
+void LaunchBrowser(int key)
 {
 	wstring clip;
 	if(GetClipboardAsString(clip))
 	{
-		clip = trim(clip);
-
-		if(!IsURL(clip))
+		if (key == 'C')
 		{
-			clip = Replace(SearchEngine::GetCurrent().FormatString(), TEXT("${CLIP}"), clip);
+			clip = trim(clip);
+
+			if (!IsURL(clip))
+			{
+				clip = Replace(SearchEngine::GetCurrent().FormatString(), TEXT("${CLIP}"), clip);
+			}
+		}
+		else // key == 'G', just open Google
+		{
+			clip = Replace(SearchEngine::GetCurrent().FormatString(), TEXT("${CLIP}"), TEXT(""));
 		}
 
 		clip = URLSanitize(clip);
@@ -436,7 +443,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		break;
 
 	case WMU_LAUNCH_BROWSER:
-		LaunchBrowser();
+		LaunchBrowser(wParam);
 		break;
 
 	default:

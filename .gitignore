@@ -170,3 +170,5 @@ $RECYCLE.BIN/
 .VC.db
 SearchClip.VC.db
 *.opendb
+*.db
+.vs/
