@@ -29,7 +29,7 @@ void				SaveOptionsToRegistry(HWND dlg);
 void				ShowOptionsDialog(HWND hWnd);
 void				UpdateOptionsDialogText(HWND dlg);
 void				InitOptionsDialog(HWND hWndDialog);
-void				LaunchBrowser();
+void				LaunchBrowser(int key);
 void				ShowContextMenu(HWND hWnd);
 void				SetupNotificationIcon(HWND hWnd);
 bool				IsURL(wstring const &str);
@@ -68,7 +68,6 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 	MouseDoubleClickTime = GetDoubleClickTime() / 1000.0;
 
 	hKeyboardHook = SetWindowsHookEx(WH_KEYBOARD_LL, fnKeyboardHook, hInstance, 0);
-	hMouseHook = SetWindowsHookEx(WH_MOUSE_LL, fnMouseHook, hInstance, 0);
 
 	if(LoadOptionsFromRegistry() == FALSE)
 	{
@@ -130,9 +129,6 @@ BOOL LoadOptionsFromRegistry()
 	{
 		return FALSE;
 	}
-
-	bMiddleClickClose = TRUE;
-	options.GetDWORDValue(GString(IDS_KEYNAME_MIDDLE_CLICK_CLOSE), bMiddleClickClose);
 
 	wstring browserName;
 	if(options.GetStringValue(GString(IDS_KEYNAME_BROWSER), browserName))
@@ -207,8 +203,6 @@ void SaveOptionsToRegistry(HWND dlg)
 	options.SetStringValue(GString(IDS_KEYNAME_BROWSER_EXECUTABLE), Browser::GetCurrent().ExecutableFilename());
 	options.SetStringValue(GString(IDS_KEYNAME_SEARCHENGINE), SearchEngine::GetCurrent().Name());
 	options.SetStringValue(GString(IDS_KEYNAME_SEARCHFORMAT), SearchEngine::GetCurrent().FormatString());
-	bMiddleClickClose = IsDlgButtonChecked(dlg, IDC_MIDDLE_CLICK_CLOSE) == BST_CHECKED;
-	options.SetDWORDValue(GString(IDS_KEYNAME_MIDDLE_CLICK_CLOSE), bMiddleClickClose);
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -253,8 +247,6 @@ void InitOptionsDialog(HWND hWndDialog)
 	RegKey r(HKEY_CURRENT_USER, TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\Run"));
 	wstring appPath;
 	CheckDlgButton(hWndDialog, IDC_CHECK_RUN_AT_STARTUP, r.GetStringValue(szTitle, appPath) ? BST_CHECKED : BST_UNCHECKED);
-
-	CheckDlgButton(hWndDialog, IDC_MIDDLE_CLICK_CLOSE, bMiddleClickClose ? BST_CHECKED : BST_UNCHECKED);
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -313,10 +305,6 @@ void LaunchBrowser(int key)
 			{
 				clip = Replace(SearchEngine::GetCurrent().FormatString(), TEXT("${CLIP}"), clip);
 			}
-		}
-		else // key == 'G', just open Google
-		{
-			clip = Replace(SearchEngine::GetCurrent().FormatString(), TEXT("${CLIP}"), TEXT(""));
 		}
 
 		clip = URLSanitize(clip);
@@ -434,7 +422,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_DESTROY:
 		Shell_NotifyIcon(NIM_DELETE, &niData);
 		UnhookWindowsHookEx(hKeyboardHook);
-		UnhookWindowsHookEx(hMouseHook);
 		PostQuitMessage(0);
 		break;
 

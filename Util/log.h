@@ -15,15 +15,14 @@ namespace chs {
 
 		namespace Severity {
 
-			enum {
-				Verbose = 0,
-				Debug = 1,
-				Info = 2,
-				Warning = 3,
-				Error = 4
-			};
-
-		}
+        enum {
+            Verbose = 0,
+            Debug = 1,
+            Info = 2,
+            Warning = 3,
+            Error = 4
+        };
+        }
 
 		namespace Internal {
 			void Output(wchar_t const *channel, wchar_t const *text, wchar_t const *file, int line, int severity, ...);
