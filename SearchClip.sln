@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25123.0
+# Visual Studio 15
+VisualStudioVersion = 15.0.26430.13
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SearchClip", "SearchClip\SearchClip.vcxproj", "{FA6B9765-5ACF-4BB0-AB0B-7308733CBA05}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -11,6 +11,8 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "KeyboardHook", "KeyboardHook\KeyboardHook.vcxproj", "{B293B444-F513-4603-917B-D5D014DB1AEF}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Util", "Util\Util.vcxproj", "{08F27F13-524F-4D49-8870-5CFF9232D868}"
+EndProject
+Project("{930C7802-8A8C-48F9-8165-68863BCCD9DD}") = "WIX", "WIX\WIX.wixproj", "{43854319-7183-4E76-A72B-5DAD7FED1486}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -40,6 +42,12 @@ Global
 		{08F27F13-524F-4D49-8870-5CFF9232D868}.Release|Win32.Build.0 = Release|Win32
 		{08F27F13-524F-4D49-8870-5CFF9232D868}.Release|x64.ActiveCfg = Release|x64
 		{08F27F13-524F-4D49-8870-5CFF9232D868}.Release|x64.Build.0 = Release|x64
+		{43854319-7183-4E76-A72B-5DAD7FED1486}.Debug|Win32.ActiveCfg = Debug|x86
+		{43854319-7183-4E76-A72B-5DAD7FED1486}.Debug|Win32.Build.0 = Debug|x86
+		{43854319-7183-4E76-A72B-5DAD7FED1486}.Debug|x64.ActiveCfg = Debug|x86
+		{43854319-7183-4E76-A72B-5DAD7FED1486}.Release|Win32.ActiveCfg = Release|x86
+		{43854319-7183-4E76-A72B-5DAD7FED1486}.Release|Win32.Build.0 = Release|x86
+		{43854319-7183-4E76-A72B-5DAD7FED1486}.Release|x64.ActiveCfg = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

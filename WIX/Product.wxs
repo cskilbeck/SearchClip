@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+	<Product Id="*" Name="SearchClip" Language="1033" Version="1.0.0.0" Manufacturer="SearchCorp" UpgradeCode="f3150c1c-9ae2-4ecc-9ddc-79ffaca4d47a">
+		<Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
+
+		<MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
+		<MediaTemplate />
+
+		<Feature Id="ProductFeature" Title="SearchClip" Level="1">
+			<ComponentGroupRef Id="ProductComponents" />
+		</Feature>
+	</Product>
+
+	<Fragment>
+		<Directory Id="TARGETDIR" Name="SourceDir">
+			<Directory Id="ProgramFilesFolder">
+				<Directory Id="INSTALLFOLDER" Name="SearchClip" />
+			</Directory>
+		</Directory>
+	</Fragment>
+
+	<Fragment>
+		<ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
+			<Component Id="ProductComponent" Guid="{4958C0BF-B67D-4423-B387-E6077386440C}">
+        <File Id="File1" Source="..\Release\KeyboardHook.dll"/>
+        <File Id="File2" Source="..\Release\SearchClip.exe"/>
+      </Component>
+		</ComponentGroup>
+	</Fragment>
+</Wix>
