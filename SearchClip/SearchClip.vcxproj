@@ -14,7 +14,7 @@
     <ProjectGuid>{FA6B9765-5ACF-4BB0-AB0B-7308733CBA05}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>SearchClip</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.14393.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -80,6 +80,9 @@
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalDependencies>$(OutputPath)KeyboardHook.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <Manifest>
+      <EnableDpiAwareness>PerMonitorHighDPIAware</EnableDpiAwareness>
+    </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Browser.h" />
@@ -112,6 +115,9 @@
     <ProjectReference Include="..\Util\Util.vcxproj">
       <Project>{08f27f13-524f-4d49-8870-5cff9232d868}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Manifest Include="SearchClip.exe.manifest" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

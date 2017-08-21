@@ -73,4 +73,7 @@
       <Filter>Resource Files</Filter>
     </ResourceCompile>
   </ItemGroup>
+  <ItemGroup>
+    <Manifest Include="SearchClip.exe.manifest" />
+  </ItemGroup>
 </Project>

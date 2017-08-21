@@ -172,3 +172,4 @@ SearchClip.VC.db
 *.opendb
 *.db
 .vs/
+*.nupkg
