@@ -10,12 +10,13 @@
 
 //////////////////////////////////////////////////////////////////////
 
-HINSTANCE hInst; // current instance
-wstring szTitle; // The title bar text
-wstring szWindowClass; // the main window class name
-NOTIFYICONDATA niData; // For the little notification icon
-HMENU hPopupMenu; // Notification area context menu
-wstring OptionsKeyName; // where the options are stored in the registry
+HINSTANCE hInst;           // current instance
+wstring szTitle;           // The title bar text
+wstring szWindowClass;     // the main window class name
+NOTIFYICONDATA niData;     // For the little notification icon
+HMENU hPopupMenu;          // Notification area context menu
+wstring OptionsKeyName;    // where the options are stored in the registry
+bool URLEncodeSearchString = true;
 
 //////////////////////////////////////////////////////////////////////
 
@@ -36,7 +37,8 @@ bool IsURL(wstring const &str);
 
 //////////////////////////////////////////////////////////////////////
 
-int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmdShow) {
+int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmdShow)
+{
     UNREFERENCED_PARAMETER(hPrevInstance);
     UNREFERENCED_PARAMETER(lpCmdLine);
 
@@ -81,8 +83,9 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 
 //////////////////////////////////////////////////////////////////////
 
-ATOM RegisterWindowClass(HINSTANCE hInstance) {
-    WNDCLASSEX wcex = {0};
+ATOM RegisterWindowClass(HINSTANCE hInstance)
+{
+    WNDCLASSEX wcex = { 0 };
     wcex.cbSize = sizeof(WNDCLASSEX);
     wcex.lpfnWndProc = WndProc;
     wcex.hInstance = hInstance;
@@ -97,7 +100,8 @@ ATOM RegisterWindowClass(HINSTANCE hInstance) {
 
 //////////////////////////////////////////////////////////////////////
 
-BOOL InitInstance(HINSTANCE hInstance, int nCmdShow) {
+BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
+{
     hInst = hInstance;
 
     hMainWindow = CreateWindow(szWindowClass.c_str(), szTitle.c_str(), WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, SW_HIDE, CW_USEDEFAULT, 0, NULL, NULL, hInstance, NULL);
@@ -112,13 +116,18 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow) {
 
 //////////////////////////////////////////////////////////////////////
 
-BOOL LoadOptionsFromRegistry() {
+BOOL LoadOptionsFromRegistry()
+{
     RegKey options(HKEY_CURRENT_USER, OptionsKeyName, KEY_READ | KEY_CREATE_SUB_KEY | KEY_SET_VALUE);
 
     DWORD optionsSet;
     if(!(options.GetDWORDValue(GString(IDS_KEYNAME_OPTIONSSET), optionsSet) && optionsSet == 1)) {
         return FALSE;
     }
+
+    DWORD urlEncode;
+    options.GetDWORDValue(GString(IDS_KEYNAME_URLENCODE), urlEncode);
+    URLEncodeSearchString = urlEncode != 0;
 
     wstring browserName;
     if(options.GetStringValue(GString(IDS_KEYNAME_BROWSER), browserName)) {
@@ -152,11 +161,15 @@ BOOL LoadOptionsFromRegistry() {
 
 //////////////////////////////////////////////////////////////////////
 
-void SaveOptionsToRegistry(HWND dlg) {
+void SaveOptionsToRegistry(HWND dlg)
+{
     WCHAR buffer[16384];
 
     HWND searchCombo = GetDlgItem(dlg, IDC_COMBO_SEARCHENGINE);
     SearchEngine::SetCurrent(ComboBox_GetCurSel(searchCombo));
+
+    HWND urlEncodeCheckbox = GetDlgItem(dlg, IDC_CHECK_URLENCODE);
+    URLEncodeSearchString = Button_GetCheck(urlEncodeCheckbox) == BST_CHECKED;
 
     GetDlgItemText(dlg, IDC_EDIT_SEARCHENGINEFORMAT, buffer, ARRAYSIZE(buffer));
     SearchEngine::GetCurrent().SetFormatString(buffer);
@@ -177,6 +190,7 @@ void SaveOptionsToRegistry(HWND dlg) {
     RegKey options;
     options.Create(HKEY_CURRENT_USER, OptionsKeyName, KEY_READ | KEY_CREATE_SUB_KEY | KEY_SET_VALUE);
     options.SetDWORDValue(GString(IDS_KEYNAME_OPTIONSSET), 1);
+    options.SetDWORDValue(GString(IDS_KEYNAME_URLENCODE), URLEncodeSearchString ? 1 : 0);
     options.SetStringValue(GString(IDS_KEYNAME_BROWSER), Browser::GetCurrent().Name());
     options.SetStringValue(GString(IDS_KEYNAME_BROWSEROPTIONS), Browser::GetCurrent().CommandLine());
     options.SetStringValue(GString(IDS_KEYNAME_BROWSER_EXECUTABLE), Browser::GetCurrent().ExecutableFilename());
@@ -186,23 +200,27 @@ void SaveOptionsToRegistry(HWND dlg) {
 
 //////////////////////////////////////////////////////////////////////
 
-void ShowOptionsDialog(HWND hWnd) {
+void ShowOptionsDialog(HWND hWnd)
+{
     DialogBox(hInst, MAKEINTRESOURCE(IDD_DIALOG_OPTIONS), hWnd, (DLGPROC)OptionsDialogProc);
 }
 
 //////////////////////////////////////////////////////////////////////
 
-void UpdateOptionsDialogText(HWND dlg) {
+void UpdateOptionsDialogText(HWND dlg)
+{
     HWND searchEdit = GetDlgItem(dlg, IDC_EDIT_SEARCHENGINEFORMAT);
     SetDlgItemText(dlg, IDC_EDIT_SEARCHENGINEFORMAT, SearchEngine::GetCurrent().FormatString().c_str());
     SetDlgItemText(dlg, IDC_STATIC_BROWSERPATH, Browser::GetCurrent().ExecutableFilename().c_str());
     SetDlgItemText(dlg, IDC_EDIT_BROWSERPARAMETERS, Browser::GetCurrent().CommandLine().c_str());
+    CheckDlgButton(dlg, IDC_CHECK_URLENCODE, URLEncodeSearchString ? BST_CHECKED : BST_UNCHECKED);
     Edit_SetReadOnly(searchEdit, !SearchEngine::GetCurrent().IsCustom());
 }
 
 //////////////////////////////////////////////////////////////////////
 
-void InitOptionsDialog(HWND hWndDialog) {
+void InitOptionsDialog(HWND hWndDialog)
+{
     SetWindowText(hWndDialog, (GString(IDS_APP_TITLE) + TEXT(" options")).c_str());
     HWND browserCombo = GetDlgItem(hWndDialog, IDC_COMBO_BROWSERCHOICE);
     for(auto const &b : Browser::AllBrowsers()) {
@@ -225,7 +243,8 @@ void InitOptionsDialog(HWND hWndDialog) {
 
 //////////////////////////////////////////////////////////////////////
 
-void SetupNotificationIcon(HWND hWnd) {
+void SetupNotificationIcon(HWND hWnd)
+{
     ZeroMemory(&niData, sizeof(NOTIFYICONDATA));
     niData.cbSize = sizeof(NOTIFYICONDATA);
     niData.uID = 1;
@@ -242,8 +261,9 @@ void SetupNotificationIcon(HWND hWnd) {
 
 //////////////////////////////////////////////////////////////////////
 
-void ShowContextMenu(HWND hWnd) {
-    MENUITEMINFO separatorBtn = {0};
+void ShowContextMenu(HWND hWnd)
+{
+    MENUITEMINFO separatorBtn = { 0 };
     separatorBtn.cbSize = sizeof(MENUITEMINFO);
     separatorBtn.fMask = MIIM_FTYPE;
     separatorBtn.fType = MFT_SEPARATOR;
@@ -263,18 +283,24 @@ void ShowContextMenu(HWND hWnd) {
 
 //////////////////////////////////////////////////////////////////////
 
-void LaunchBrowser(int key) {
+void LaunchBrowser(int key)
+{
     wstring clip;
     if(GetClipboardAsString(clip)) {
         if(key == 'C') {
-            clip = URLSanitize(trim(clip));
+            clip = trim(clip);
             if(!IsURL(clip)) {
+                if(URLEncodeSearchString) {
+                    clip = URLSanitize(clip);
+                }
                 clip = Replace(SearchEngine::GetCurrent().FormatString(), TEXT("${CLIP}"), clip);
+            } else {
+                clip = URLSanitize(clip);    // URLs always sanitized... right?
             }
         }
 
-        STARTUPINFO startupInfo = {0};
-        PROCESS_INFORMATION processInformation = {0};
+        STARTUPINFO startupInfo = { 0 };
+        PROCESS_INFORMATION processInformation = { 0 };
 
         startupInfo.cb = sizeof(startupInfo);
         startupInfo.wShowWindow = SW_SHOWMAXIMIZED;
@@ -289,7 +315,8 @@ void LaunchBrowser(int key) {
 
 //////////////////////////////////////////////////////////////////////
 
-LRESULT CALLBACK OptionsDialogProc(HWND hWndDialog, UINT uMsg, WPARAM wParam, LPARAM lParam) {
+LRESULT CALLBACK OptionsDialogProc(HWND hWndDialog, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
     switch(uMsg) {
     case WM_INITDIALOG:
         InitOptionsDialog(hWndDialog);
@@ -341,7 +368,8 @@ LRESULT CALLBACK OptionsDialogProc(HWND hWndDialog, UINT uMsg, WPARAM wParam, LP
 
 //////////////////////////////////////////////////////////////////////
 
-LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
+LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+{
     switch(message) {
     case WM_CREATE:
         SetupNotificationIcon(hWnd);
@@ -393,7 +421,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 
 //////////////////////////////////////////////////////////////////////
 
-bool IsURL(wstring const &str) {
+bool IsURL(wstring const &str)
+{
     // if it has any spaces in it, it can't be a url (can it?)
     if(str.find(L" ", 0) != wstring::npos) {
         return false;
