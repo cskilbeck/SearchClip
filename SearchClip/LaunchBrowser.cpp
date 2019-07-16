@@ -16,7 +16,7 @@ wstring szWindowClass;     // the main window class name
 NOTIFYICONDATA niData;     // For the little notification icon
 HMENU hPopupMenu;          // Notification area context menu
 wstring OptionsKeyName;    // where the options are stored in the registry
-bool URLEncodeSearchString = true;
+bool URLEncodeSearchString = false;
 
 //////////////////////////////////////////////////////////////////////
 
@@ -309,7 +309,9 @@ void LaunchBrowser(int key)
         WCHAR commandLine[16384];
         wcscpy_s(commandLine, (Browser::GetCurrent().ExecutableFilename() + TEXT(" ") + Browser::GetCurrent().CommandLine() + TEXT(" ") + clip).c_str());
 
-        CreateProcess(NULL, commandLine, NULL, NULL, FALSE, 0L, NULL, NULL, &startupInfo, &processInformation);
+        if(CreateProcess(NULL, commandLine, NULL, NULL, FALSE, 0L, NULL, NULL, &startupInfo, &processInformation)) {
+            CloseHandle(processInformation.hProcess);    // close handle because we won't be waiting for it to complete
+        }
     }
 }
 
