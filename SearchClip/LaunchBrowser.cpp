@@ -77,7 +77,6 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
         TranslateMessage(&msg);
         DispatchMessage(&msg);
     }
-
     return (int)msg.wParam;
 }
 

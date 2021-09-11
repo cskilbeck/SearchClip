@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.26730.3
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30621.155
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SearchClip", "SearchClip\SearchClip.vcxproj", "{FA6B9765-5ACF-4BB0-AB0B-7308733CBA05}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -22,16 +22,20 @@ Global
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{FA6B9765-5ACF-4BB0-AB0B-7308733CBA05}.Debug|Win32.ActiveCfg = Debug|Win32
 		{FA6B9765-5ACF-4BB0-AB0B-7308733CBA05}.Debug|Win32.Build.0 = Debug|Win32
-		{FA6B9765-5ACF-4BB0-AB0B-7308733CBA05}.Debug|x64.ActiveCfg = Debug|Win32
+		{FA6B9765-5ACF-4BB0-AB0B-7308733CBA05}.Debug|x64.ActiveCfg = Debug|x64
+		{FA6B9765-5ACF-4BB0-AB0B-7308733CBA05}.Debug|x64.Build.0 = Debug|x64
 		{FA6B9765-5ACF-4BB0-AB0B-7308733CBA05}.Release|Win32.ActiveCfg = Release|Win32
 		{FA6B9765-5ACF-4BB0-AB0B-7308733CBA05}.Release|Win32.Build.0 = Release|Win32
-		{FA6B9765-5ACF-4BB0-AB0B-7308733CBA05}.Release|x64.ActiveCfg = Release|Win32
+		{FA6B9765-5ACF-4BB0-AB0B-7308733CBA05}.Release|x64.ActiveCfg = Release|x64
+		{FA6B9765-5ACF-4BB0-AB0B-7308733CBA05}.Release|x64.Build.0 = Release|x64
 		{B293B444-F513-4603-917B-D5D014DB1AEF}.Debug|Win32.ActiveCfg = Debug|Win32
 		{B293B444-F513-4603-917B-D5D014DB1AEF}.Debug|Win32.Build.0 = Debug|Win32
-		{B293B444-F513-4603-917B-D5D014DB1AEF}.Debug|x64.ActiveCfg = Debug|Win32
+		{B293B444-F513-4603-917B-D5D014DB1AEF}.Debug|x64.ActiveCfg = Debug|x64
+		{B293B444-F513-4603-917B-D5D014DB1AEF}.Debug|x64.Build.0 = Debug|x64
 		{B293B444-F513-4603-917B-D5D014DB1AEF}.Release|Win32.ActiveCfg = Release|Win32
 		{B293B444-F513-4603-917B-D5D014DB1AEF}.Release|Win32.Build.0 = Release|Win32
-		{B293B444-F513-4603-917B-D5D014DB1AEF}.Release|x64.ActiveCfg = Release|Win32
+		{B293B444-F513-4603-917B-D5D014DB1AEF}.Release|x64.ActiveCfg = Release|x64
+		{B293B444-F513-4603-917B-D5D014DB1AEF}.Release|x64.Build.0 = Release|x64
 		{08F27F13-524F-4D49-8870-5CFF9232D868}.Debug|Win32.ActiveCfg = Debug|Win32
 		{08F27F13-524F-4D49-8870-5CFF9232D868}.Debug|Win32.Build.0 = Debug|Win32
 		{08F27F13-524F-4D49-8870-5CFF9232D868}.Debug|x64.ActiveCfg = Debug|x64
